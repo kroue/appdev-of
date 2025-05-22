@@ -1,0 +1,164 @@
+.signup-background {
+  background-image: url('../../src/img/OF-login-bcg.png');
+  background-size: cover;
+  background-position: center;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.signup-container {
+  background: rgba(255, 255, 255, 0.634);
+  padding: 1.5rem;
+  width: 400px;
+  max-width: 90%;
+  text-align: center;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+  border-radius: 2rem;
+}
+
+.signup-title {
+  color: #19559c;
+  font-size: 3rem;
+  font-weight: bold;
+  margin-top: 1px;
+  margin-bottom: 20px;
+}
+
+.signup-form-box {
+  background-color: #0d3c74;
+  color: white;
+  padding: 1rem;
+  border-radius: 2rem;
+}
+
+.form-heading {
+  font-size: 1.3rem;
+  margin-top: 5px;
+}
+
+.form-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+
+.form-row {
+  display: flex;
+  gap: 1rem;
+  width: 100%; /* Ensures the form-row takes up full available width */
+}
+
+.half {
+  flex: 1; /* Ensures both input fields take up equal width */
+}
+
+.form-input {
+  padding: 0.8rem;
+  border-radius: 0.5rem;
+  border: none;
+  font-size: 1rem;
+  width: 100%;  /* Ensures the inputs take up full available width */
+  box-sizing: border-box;  /* Includes padding in the total width calculation */
+  margin-bottom: 1rem;  /* Adds space between each input */
+}
+
+/* Style for the select dropdown (Gender) to match the input style */
+select.form-input {
+  appearance: none;  /* Removes default dropdown arrow */
+  -webkit-appearance: none;  /* For Safari */
+  -moz-appearance: none;  /* For Firefox */
+  background-color: white;
+  padding: 0.8rem;
+  font-size: 1rem;
+  border-radius: 0.5rem;
+  border: none;
+  width: 100%;  /* Ensures the dropdown takes up full available width */
+}
+
+/* Optional: Add a custom dropdown arrow */
+select.form-input::after {
+  content: ' ▼';
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;  /* Prevents interaction with the arrow */
+}
+
+
+.password-wrapper {
+  position: relative;
+}
+
+.signup-eye-icon {
+  position: absolute;
+  right: 10px;
+  top: 18px;
+  transform: translateY(-50%);
+  cursor: pointer;
+}
+
+.terms {
+  font-size: 0.85rem;
+  text-align: left;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin-top: -20px;
+  margin-bottom: 20px;
+}
+
+.terms a {
+  color: #ffffff;
+  text-decoration: underline;
+}
+
+.terms a:hover{
+  color: #1e6091;
+}
+
+.submit-btn {
+  background: white;
+  color: black;
+  padding: 0.6rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  margin-top: 0.5rem;
+  transition: background 0.3s ease, color 0.3s ease;  /* Smooth transition */
+}
+
+.submit-btn:hover {
+  background: #1e6091;  /* Change to a new background color */
+  color: white;  /* Change text color */
+}
+
+
+.or {
+  font-size: 0.85rem;
+  margin: 0.4rem 0 0.1rem;
+}
+
+.icon {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.login-link {
+  margin-top: 1rem;
+  font-size: 0.85rem;
+}
+
+.login-link a {
+  color: #ffffff;
+  text-decoration: underline;
+}
+
+.login-link a:hover{
+  color: #1e6091;
+}

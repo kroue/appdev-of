@@ -1,0 +1,41 @@
+.contact-us {
+  font-family: Arial, sans-serif;
+  padding: 30px;
+}
+
+.contact-us h2 {
+  margin-bottom: 20px;
+  color: #207cca;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 16px;
+  color: #333;
+}
+
+.form-group textarea {
+  width: 100%;
+  padding: 10px;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  min-height: 150px;
+  resize: vertical;
+}
+
+.btn-primary {
+  background-color: #0a469e;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  background-color: #074d80;
+}

@@ -1,0 +1,18 @@
+footer {
+  font-family: Arial, sans-serif;
+  display: flex;
+  justify-content: center;
+  gap: 100px;
+  padding: 20px;
+  border-top: 1px solid #ddd;
+}
+
+footer a {
+  color: rgb(0, 0, 0);
+  text-decoration: none; /* 👈 No underline */
+  font-weight: 500;
+}
+
+footer a:hover {
+  text-decoration: underline; /* Optional: Add underline on hover */
+}

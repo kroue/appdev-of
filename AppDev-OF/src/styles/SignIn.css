@@ -1,0 +1,154 @@
+body, html {
+  margin: 0;
+  padding: 0;
+  font-family: 'Rasa';
+}
+
+.container {
+  display: flex;
+  height: 100vh;
+  width: 100%;
+  background: url('../../src/img/OF-login-bcg.png') no-repeat center center/cover;
+}
+
+.left-panel, .right-panel {
+  flex: 1;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.left-panel {
+  background-color: rgb(255, 255, 255);
+  align-items: center;
+}
+
+.right-panel {
+  background-color: rgba(0, 63, 124, 0.8);
+  color: white;
+}
+
+.logo {
+  font-size: 70px;
+  margin-top: -100px;
+}
+
+.only {
+  color: rgba(48, 130, 198, 1);
+}
+
+.friends {
+  color: rgba(13, 89, 151, 1);
+}
+
+.logo-img {
+  width: 150px; 
+  height: 100px; 
+  margin-bottom: 90px; 
+  margin-right: 43% ;
+}
+
+.logo-img img {
+  width: 300%;  
+  height: 300%; /* Ensure it maintains the aspect ratio */
+  margin-top: -30px;
+}
+
+.eye-icon {
+  position: absolute;
+  right: 10px;
+  cursor: pointer;
+  margin-top: -10px;
+}
+
+.right-panel h2 {
+  margin: 0;
+  font-size: 40px;
+}
+
+form {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+input[type="email"], input[type="password"] {
+  padding: 10px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+
+.password-wrapper {
+  position: relative;
+}
+
+input[type="email"], input[type="password"], input[type="text"] {
+  padding: 10px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  width: 100%; 
+}
+
+.password-wrapper {
+  position: relative;
+}
+
+.eye-icon {
+  position: absolute;
+  right: 10px;
+  top: 16px;
+  cursor: pointer;
+}
+
+.forgot {
+  font-size: 15px;
+  color: #ffffff;
+  text-align: right;
+  margin-bottom: 30px;
+}
+
+.forgot:hover {
+    color: #1e6091;
+}
+
+.signin-btn {
+  padding: 10px 20px;
+  background-color: white;
+  border: none;
+  border-radius: 20px;
+  font-weight: bold;
+  cursor: pointer;
+  width: 70%;
+  max-width: 300px;
+  margin: 0 auto;
+  margin-bottom: 20px;
+  transition: background-color 0.3s ease, color 0.3s ease; /* Smooth transition */
+}
+
+.signin-btn:hover {
+  background-color: #1e6091; /* Hover background color */
+  color: white; /* Optional: Change text color on hover */
+}
+
+.or {
+  text-align: center;
+  margin: 40px 0 10px;
+  font-size: 20px;
+  margin-top: 20px;;
+}
+
+.signup {
+  font-size: 15px;
+  text-align: center;
+  margin-top: 20px;
+}
+
+.signup a {
+  color: #ffffff;
+}
+
+.signup a:hover {
+  color: #1e6091;
+}
+

@@ -1,0 +1,116 @@
+.dashboard {
+  font-family: Arial, sans-serif;
+  padding: 0;
+  margin: 0;
+}
+
+.dash-logo {
+  color: white;
+}
+
+.welcome-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  background: #207cca;
+  color: white;
+  padding: 30px;
+}
+
+.profile-pic {
+  background: #d9d9d9;
+  border-radius: 50%;
+  width: 80px;
+  height: 80px;
+  margin-right: 20px;
+}
+
+.welcome-section div {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.welcome-section h3,
+.welcome-section p {
+  margin: 0;
+}
+
+.welcome-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.Dash-btn-primary {
+  background-color: #0a469e;
+  color: white;
+  padding: 10px 15px;
+  border-color: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn-secondary {
+  background-color: #207cca;
+  color: white;
+  padding: 10px 15px;
+  border-color: white;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.schedules {
+  padding: 30px;
+}
+
+.shift-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.shift-item {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.shift-icon {
+  font-size: 30px;
+}
+
+.shift-time {
+  margin-left: auto;
+  font-weight: bold;
+}
+
+.clockin-form {
+  padding: 30px;
+}
+
+.clockin-form form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  max-width: 500px;
+}
+
+.shift-buttons button {
+  padding: 10px;
+  margin-right: 10px;
+  border: 1px solid #ccc;
+  background: white;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.shift-buttons .active {
+  background-color: #0d6efd;
+  color: white;
+  border: none;
+}
