@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Image, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, ScrollView, Image, Alert, Modal } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -15,6 +15,7 @@ const DashboardScreen = () => {
   const [schedules, setSchedules] = useState([]);
   const [selectedSchedule, setSelectedSchedule] = useState(null);
   const [expandedDates, setExpandedDates] = useState({}); // Add this
+  const [scheduleModalVisible, setScheduleModalVisible] = useState(false);
 
   // Fetch logged-in user data
   useEffect(() => {
@@ -163,6 +164,12 @@ const DashboardScreen = () => {
     }));
   };
 
+  // Floating logout handler
+  const handleLogout = async () => {
+    await AsyncStorage.removeItem('loggedInUser');
+    navigation.replace('Login');
+  };
+
   return (
     <ScrollView contentContainerStyle={styles.container}>
       {/* Header */}
@@ -178,7 +185,10 @@ const DashboardScreen = () => {
 
       {/* Navigation Buttons */}
       <View style={styles.navButtons}>
-        <TouchableOpacity style={styles.navButton} onPress={() => navigation.navigate('Schedule')}>
+        <TouchableOpacity
+          style={styles.navButton}
+          onPress={() => setScheduleModalVisible(true)}
+        >
           <FontAwesome name="calendar" size={28} color="#333" />
           <Text>Schedule</Text>
         </TouchableOpacity>
@@ -191,6 +201,44 @@ const DashboardScreen = () => {
           <Text>Settings</Text>
         </TouchableOpacity>
       </View>
+
+      {/* Schedules Modal */}
+      <Modal
+        visible={scheduleModalVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setScheduleModalVisible(false)}
+      >
+        <View style={styles.modalBackground}>
+          <View style={styles.modalContainer}>
+            <Text style={styles.modalTitle}>All Schedules</Text>
+            <ScrollView style={{ maxHeight: 300 }}>
+              {schedules.length === 0 ? (
+                <Text style={{ textAlign: 'center', color: '#888' }}>No schedules found.</Text>
+              ) : (
+                schedules.map((schedule) => (
+                  <View key={schedule.id} style={styles.scheduleItem}>
+                    <Text style={styles.scheduleTextModal}>
+                      {new Date(schedule.date).toLocaleDateString('en-US', {
+                        month: 'long',
+                        day: 'numeric',
+                        year: 'numeric',
+                      })}{' '}
+                      - {schedule.time}
+                    </Text>
+                  </View>
+                ))
+              )}
+            </ScrollView>
+            <TouchableOpacity
+              style={styles.modalCloseButton}
+              onPress={() => setScheduleModalVisible(false)}
+            >
+              <Text style={styles.modalCloseText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
 
       {/* Available Schedules */}
       <Text style={styles.sectionTitle}>Available Schedules</Text>
@@ -288,6 +336,15 @@ const DashboardScreen = () => {
           ))
         )}
       </View>
+
+      {/* Floating Logout Button */}
+      <TouchableOpacity
+        style={styles.fabLogout}
+        onPress={handleLogout}
+        activeOpacity={0.8}
+      >
+        <FontAwesome name="sign-out" size={28} color="#fff" />
+      </TouchableOpacity>
     </ScrollView>
   );
 };
@@ -445,6 +502,60 @@ const styles = StyleSheet.create({
   noHistoryText: {
     fontStyle: 'italic',
     color: '#777',
+  },
+  modalBackground: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContainer: {
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 20,
+    width: '85%',
+    maxHeight: '70%',
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 15,
+  },
+  modalCloseButton: {
+    marginTop: 15,
+    alignSelf: 'center',
+  },
+  modalCloseText: {
+    color: '#0a469e',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  scheduleItem: {
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  scheduleTextModal: {
+    fontSize: 15,
+    color: '#222',
+  },
+  fabLogout: {
+    position: 'absolute',
+    right: 25,
+    bottom: 25,
+    backgroundColor: '#e53935',
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    justifyContent: 'center',
+    alignItems: 'center',
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowRadius: 5,
+    shadowOffset: { width: 0, height: 2 },
+    zIndex: 99,
   },
 });
 

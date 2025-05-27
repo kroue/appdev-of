@@ -96,6 +96,15 @@ app.delete('/api/users/:id', (req, res) => {
     });
 });
 
+app.get('/api/users/:id', (req, res) => {
+    const userId = req.params.id;
+    db.query('SELECT * FROM users WHERE id = ?', [userId], (err, results) => {
+        if (err) return res.status(500).json({ message: 'Error fetching user.' });
+        if (results.length === 0) return res.status(404).json({ message: 'User not found.' });
+        res.json(results[0]);
+    });
+});
+
 // CRUD for schedules
 app.get('/api/schedules', (req, res) => {
     db.query('SELECT * FROM schedules', (err, results) => {
@@ -150,31 +159,50 @@ const resetCodes = {};
 // Send reset code endpoint
 app.post('/api/send-reset-code', (req, res) => {
     const { email } = req.body;
-    const code = Math.floor(100000 + Math.random() * 900000).toString();
-    resetCodes[email] = code;
+    console.log('Received email:', email); // Debugging log
 
-    // Send email using PHPMailer (if using PHP) or nodemailer for Node.js
-    // Example using nodemailer:
-    const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-            user: 'your_email@gmail.com',
-            pass: 'your_email_password'
+    // Check if the email exists in the database
+    const query = 'SELECT * FROM users WHERE email = ?';
+    db.query(query, [email], (err, results) => {
+        if (err) {
+            console.error('Database error:', err); // Log database error
+            return res.status(500).json({ message: 'Database error.' });
         }
-    });
 
-    const mailOptions = {
-        from: 'your_email@gmail.com',
-        to: email,
-        subject: 'Your Password Reset Code',
-        text: `Your password reset code is: ${code}`
-    };
-
-    transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-            return res.status(500).json({ message: 'Failed to send email.' });
+        if (results.length === 0) {
+            console.log('Email not found:', email); // Log if email is not found
+            return res.status(404).json({ message: 'Email not found.' });
         }
-        res.json({ message: 'Code sent!', code }); // Remove code in production!
+
+        console.log('Email found, sending code...'); // Log if email is found
+
+        // Generate a random 6-digit code
+        const code = Math.floor(100000 + Math.random() * 900000).toString();
+
+        // Send the email using nodemailer
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                user: 'kroue4444@gmail.com',
+                pass: 'dcdi avmy kgye uaeu', // Ensure this is correct
+            }
+        });
+
+        const mailOptions = {
+            from: 'kroue4444@gmail.com',
+            to: email,
+            subject: 'Password Reset Code',
+            text: `Your password reset code is: ${code}`
+        };
+
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                console.error('Error sending email:', error); // This will print the real reason
+                return res.status(500).json({ message: 'Failed to send email.' });
+            }
+            console.log('Email sent:', info.response);
+            res.json({ message: 'Code sent to email.', code });
+        });
     });
 });
 

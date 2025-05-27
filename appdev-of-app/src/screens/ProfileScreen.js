@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -8,9 +8,11 @@ import {
   Image,
   ScrollView,
   Dimensions,
+  Alert,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width } = Dimensions.get('window');
 
@@ -30,23 +32,62 @@ const EditProfileScreen = () => {
   const [password, setPassword] = useState('');
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isEditing, setIsEditing] = useState(false);
+  const [userId, setUserId] = useState(null);
+
+  // Fetch user data on mount
+  useEffect(() => {
+    const fetchUser = async () => {
+      const userData = await AsyncStorage.getItem('loggedInUser');
+      if (userData) {
+        const user = JSON.parse(userData);
+        setUserId(user.id);
+        try {
+          const response = await fetch(`http://192.168.1.12:5000/api/users/${user.id}`);
+          const data = await response.json();
+          setFullName(data.fullName || data.full_name || '');
+          setGender(data.gender || '');
+          setAge(data.age ? String(data.age) : '');
+          setPhone(data.phoneNumber || data.phone_number || '');
+          setEmail(data.email || '');
+          // Do not set password for security reasons
+        } catch (error) {
+          Alert.alert('Error', 'Failed to fetch profile.');
+        }
+      }
+    };
+    fetchUser();
+  }, []);
 
   const handleScroll = (event) => {
     const slide = Math.round(event.nativeEvent.contentOffset.x / width);
     setCurrentSlide(slide);
   };
 
-  const handleToggleEdit = () => {
+  // Save profile changes
+  const handleToggleEdit = async () => {
     if (isEditing) {
-      // Save logic can go here, e.g. API call
-      console.log('Saving profile...', {
-        fullName,
-        gender,
-        age,
-        phone,
-        email,
-        password,
-      });
+      // Save logic
+      try {
+        const response = await fetch(`http://192.168.1.12:5000/api/users/${userId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            fullName,
+            gender,
+            age,
+            phoneNumber: phone,
+            email,
+            password: password ? password : undefined, // Only send if changed
+          }),
+        });
+        if (response.ok) {
+          Alert.alert('Success', 'Profile updated!');
+        } else {
+          Alert.alert('Error', 'Failed to update profile.');
+        }
+      } catch (error) {
+        Alert.alert('Error', 'Failed to update profile.');
+      }
     }
     setIsEditing(!isEditing);
   };
@@ -64,7 +105,7 @@ const EditProfileScreen = () => {
       {/* Avatar & Name */}
       <View style={styles.profileInfo}>
         <View style={styles.avatar} />
-        <Text style={styles.userName}>Your Name</Text>
+        <Text style={styles.userName}>{fullName || 'Your Name'}</Text>
       </View>
 
       {/* Inputs */}

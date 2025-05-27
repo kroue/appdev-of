@@ -13,18 +13,22 @@ const ForgotPassword = () => {
   // Step 1: Send code
   const handleSendCode = async (e) => {
     e.preventDefault();
-    const res = await fetch('http://localhost:5000/api/send-reset-code', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email }),
-    });
-    const data = await res.json();
-    if (res.ok) {
-      setCode(data.code); // For demo only; don't show code in production
-      setStep(2);
-      alert('A one-time code has been sent to your email.');
-    } else {
-      alert(data.message || 'Failed to send code.');
+    try {
+        const res = await fetch('http://localhost:5000/api/send-reset-code', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email }),
+        });
+        const data = await res.json();
+        if (res.ok) {
+            setCode(data.code); // For demo only; don't show code in production
+            setStep(2);
+            alert('A one-time code has been sent to your email.');
+        } else {
+            alert(data.message || 'Failed to send code.');
+        }
+    } catch (error) {
+        alert('Server error. Please try again later.');
     }
   };
 
