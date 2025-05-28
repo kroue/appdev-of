@@ -42,6 +42,26 @@
   gap: 10px;
 }
 
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+.modal-content {
+  background: #fff;
+  border-radius: 10px;
+  padding: 32px 24px;
+  min-width: 320px;
+  max-width: 90vw;
+}
+
 .Dash-btn-primary {
   background-color: #0a469e;
   color: white;

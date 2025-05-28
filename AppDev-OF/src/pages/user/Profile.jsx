@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { IoChevronBack } from 'react-icons/io5';
 import '../../styles/Profile.css';
 
 const dummyImages = [
@@ -13,6 +12,7 @@ const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [currentSlide, setCurrentSlide] = useState(0);
 
+  // Form fields
   const [fullName, setFullName] = useState('');
   const [gender, setGender] = useState('');
   const [age, setAge] = useState('');
@@ -20,32 +20,47 @@ const Profile = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
+  // Fetch user data from backend
   useEffect(() => {
     const loggedInUser = JSON.parse(localStorage.getItem('loggedInUser'));
     if (loggedInUser) {
-      setUser(loggedInUser);
-      setFullName(loggedInUser.fullName || '');
-      setGender(loggedInUser.gender || '');
-      setAge(loggedInUser.age || '');
-      setPhone(loggedInUser.phone || '');
-      setEmail(loggedInUser.email || '');
-      setPassword(loggedInUser.password || '');
+      fetch(`http://localhost:5000/api/users/${loggedInUser.id}`)
+        .then((res) => res.json())
+        .then((data) => {
+          setUser(data);
+          setFullName(data.full_name || '');
+          setGender(data.gender || '');
+          setAge(data.age || '');
+          setPhone(data.phone_number || '');
+          setEmail(data.email || '');
+          setPassword(''); // Don't prefill password for security
+        });
     }
   }, []);
 
-  const handleToggleEdit = () => {
-    if (isEditing) {
+  const handleToggleEdit = async () => {
+    if (isEditing && user) {
+      // Save changes to backend
       const updatedUser = {
-        ...user,
-        fullName,
+        full_name: fullName,
         gender,
         age,
-        phone,
+        phone_number: phone,
         email,
-        password,
+        password: password || undefined, // Only send if changed
       };
-      localStorage.setItem('loggedInUser', JSON.stringify(updatedUser));
-      setUser(updatedUser);
+      const res = await fetch(`http://localhost:5000/api/users/${user.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updatedUser),
+      });
+      if (res.ok) {
+        const updated = await res.json();
+        setUser(updated);
+        alert('Profile updated!');
+      } else {
+        alert('Failed to update profile.');
+      }
     }
     setIsEditing(!isEditing);
   };
@@ -68,7 +83,7 @@ const Profile = () => {
       <div className="profile-details">
         <div className="profile-pic" />
         <div className="profile-info">
-          <h3>{user.fullName}</h3>
+          <h3>{user.full_name}</h3>
           <p>{user.role || 'Basic Employee'}</p>
           <p>Email: {user.email}</p>
           <p>Department: {user.department || 'N/A'}</p>
@@ -84,7 +99,6 @@ const Profile = () => {
           disabled={!isEditing}
         />
 
-        {/* Gender Dropdown */}
         <label>Gender</label>
         <select
           value={gender}
@@ -127,6 +141,7 @@ const Profile = () => {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           disabled={!isEditing}
+          placeholder="Enter new password"
         />
       </div>
 

@@ -44,9 +44,10 @@ const Admin = () => {
     });
   };
 
-  // Group logs by date
+  // Group logs by date (local string version)
   const logsByDate = logs.reduce((acc, log) => {
-    const date = new Date(log.time).toISOString().split('T')[0];
+    // Use log.time_local if available, otherwise log.time
+    const date = (log.time_local || log.time).split(',')[0];
     if (!acc[date]) acc[date] = [];
     acc[date].push(log);
     return acc;
@@ -89,7 +90,7 @@ const Admin = () => {
             <h3>Clock-In/Out Logs for {selectedUser.full_name}</h3>
             <div className="admin-logs">
               {Object.keys(logsByDate).length === 0 && <div>No logs yet.</div>}
-              {Object.keys(logsByDate).map((date) => (
+              {Object.keys(logsByDate).map((date) => (  
                 <div
                   key={date}
                   style={{
@@ -140,7 +141,7 @@ const Admin = () => {
                               {log.type === 'in' ? 'Clocked In' : 'Clocked Out'}
                             </span>
                             {' at '}
-                            {formatDateTime(log.time)}
+                            {log.time_local || formatDateTime(log.time)}
                           </li>
                         ))}
                       </ul>

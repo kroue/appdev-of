@@ -105,6 +105,33 @@ app.get('/api/users/:id', (req, res) => {
     });
 });
 
+// Update user
+app.put('/api/users/:id', (req, res) => {
+    const userId = req.params.id;
+    const { full_name, gender, age, phone_number, email, password } = req.body;
+    let query = 'UPDATE users SET full_name = ?, gender = ?, age = ?, phone_number = ?, email = ?';
+    const params = [full_name, gender, age, phone_number, email];
+
+    if (password) {
+        // If password is provided, hash it and update
+        const bcrypt = require('bcrypt');
+        const passwordHash = bcrypt.hashSync(password, 10);
+        query += ', password_hash = ?';
+        params.push(passwordHash);
+    }
+    query += ' WHERE id = ?';
+    params.push(userId);
+
+    db.query(query, params, (err) => {
+        if (err) return res.status(500).json({ message: 'Failed to update user.' });
+        // Return the updated user
+        db.query('SELECT * FROM users WHERE id = ?', [userId], (err, results) => {
+            if (err || results.length === 0) return res.status(500).json({ message: 'Failed to fetch updated user.' });
+            res.json(results[0]);
+        });
+    });
+});
+
 // CRUD for schedules
 app.get('/api/schedules', (req, res) => {
     db.query('SELECT * FROM schedules', (err, results) => {
@@ -142,15 +169,18 @@ app.get('/api/logs', (req, res) => {
 });
 
 app.post('/api/logs', (req, res) => {
-    const { userId, type, time } = req.body;
-    const timestamp = time || new Date().toISOString(); // Use provided time or fallback to current UTC time
-    db.query('INSERT INTO logs (user_id, type, time) VALUES (?, ?, ?)', [userId, type, timestamp], (err) => {
+    const { userId, type, time, timeLocal } = req.body;
+    db.query(
+      'INSERT INTO logs (user_id, type, time, time_local) VALUES (?, ?, ?, ?)',
+      [userId, type, time, timeLocal],
+      (err) => {
         if (err) {
             console.error(err);
             return res.status(500).json({ message: 'Failed to record log.' });
         }
         res.status(201).json({ message: 'Log recorded successfully.' });
-    });
+      }
+    );
 });
 
 // Store codes in-memory for demo (use DB in production)

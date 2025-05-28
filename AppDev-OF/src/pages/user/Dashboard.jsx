@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import '../../styles/Dashboard.css';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate for redirect
+import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
   const [selectedShift, setSelectedShift] = useState('');
@@ -9,6 +9,7 @@ const Dashboard = () => {
   const [clockedInTime, setClockedInTime] = useState(null);
   const [loggedInUser, setLoggedInUser] = useState(null);
   const [schedules, setSchedules] = useState([]);
+  const [showSchedulesModal, setShowSchedulesModal] = useState(false);
   const navigate = useNavigate(); // Hook for navigation after logout
 
   useEffect(() => {
@@ -32,9 +33,9 @@ const Dashboard = () => {
   }, []);
 
   const formatDateTime = (dateTimeString) => {
-    if (!dateTimeString) return 'Invalid Date'; // Handle null or undefined timestamps
-  
-    const date = new Date(dateTimeString); // Parse the UTC timestamp
+    if (!dateTimeString) return 'Invalid Date';
+    const date = new Date(dateTimeString);
+    if (isNaN(date.getTime())) return 'Invalid Date';
     return date.toLocaleString('en-US', {
       weekday: 'long',
       year: 'numeric',
@@ -43,7 +44,6 @@ const Dashboard = () => {
       hour: '2-digit',
       minute: '2-digit',
       hour12: true,
-      timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone, // Use the user's local time zone
     });
   };
 
@@ -60,54 +60,55 @@ const Dashboard = () => {
     if (!selectedShift) return alert('Please select a shift.');
 
     const now = new Date();
-    const timestamp = now.toISOString(); // Use ISO format for consistency
+    const localTime = now.toLocaleString(); // Always use local time
 
     try {
-        await fetch('http://localhost:5000/api/logs', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                userId: loggedInUser.id,
-                type: 'in',
-                time: timestamp, // Send ISO timestamp
-                shift: selectedShift,
-                reason: clockInReason,
-            }),
-        });
+      await fetch('http://localhost:5000/api/logs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: loggedInUser.id,
+          type: 'in',
+          time: localTime, // Only send local time string
+          shift: selectedShift,
+          reason: clockInReason,
+        }),
+      });
 
-        setClockLog((prevLog) => [
-            ...prevLog,
-            { type: 'in', time: timestamp, shift: selectedShift, reason: clockInReason },
-        ]);
-        setClockedInTime(timestamp);
-        alert('Clocked in successfully.');
+      setClockLog((prevLog) => [
+        ...prevLog,
+        { type: 'in', time: localTime, shift: selectedShift, reason: clockInReason },
+      ]);
+      setClockedInTime(localTime);
+      alert('Clocked in successfully.');
     } catch (error) {
-        alert('Failed to record clock-in.');
+      alert('Failed to record clock-in.');
     }
   };
 
   const handleClockOut = async () => {
     const now = new Date();
-    const timestamp = now.toISOString(); // Use ISO format for consistency
+    const localTime = now.toLocaleString(); // Always use local time
 
     try {
-        await fetch('http://localhost:5000/api/logs', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                userId: loggedInUser.id,
-                type: 'out',
-                time: timestamp, // Send ISO timestamp
-            }),
-        });
+      await fetch('http://localhost:5000/api/logs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userId: loggedInUser.id,
+          type: 'out',
+          time: localTime, // Only send local time string
+          shift: selectedShift,
+        }),
+      });
 
-        setClockLog((prevLog) => [
-            ...prevLog,
-            { type: 'out', time: timestamp, shift: selectedShift },
-        ]);
-        alert('Clocked out successfully.');
+      setClockLog((prevLog) => [
+        ...prevLog,
+        { type: 'out', time: localTime, shift: selectedShift },
+      ]);
+      alert('Clocked out successfully.');
     } catch (error) {
-        alert('Failed to record clock-out.');
+      alert('Failed to record clock-out.');
     }
   };
 
@@ -119,15 +120,47 @@ const Dashboard = () => {
           <p>Welcome to the Dashboard</p>
         </div>
         <div className="welcome-actions">
-          <button className="btn-secondary">Upcoming Schedules</button>
+          <button
+            className="btn-secondary"
+            onClick={() => setShowSchedulesModal(true)}
+          >
+            Upcoming Schedules
+          </button>
           <button
             className="Dash-btn-primary"
             onClick={() => document.getElementById('clock-in-out').scrollIntoView({ behavior: 'smooth' })}
           >
             Clock In / Out
           </button>
-          </div>
+        </div>
       </div>
+
+      {/* Schedules Modal */}
+      {showSchedulesModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h3>Upcoming Schedules</h3>
+            <ul>
+              {schedules.length === 0 ? (
+                <li>No schedules found.</li>
+              ) : (
+                schedules.map((schedule) => (
+                  <li key={schedule.id}>
+                    {schedule.date} - {schedule.time}
+                  </li>
+                ))
+              )}
+            </ul>
+            <button
+              className="Dash-btn-primary"
+              onClick={() => setShowSchedulesModal(false)}
+              style={{ marginTop: 16 }}
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      )}
 
       <section className="schedules">
         <h3>Upcoming Schedules</h3>
@@ -135,14 +168,14 @@ const Dashboard = () => {
         <div className="shift-list">
           {schedules.map((schedule) => (
             <div className="shift-item" key={schedule.id}>
-            <span className="shift-icon">🕒</span>
-            <div>
-              <strong>Shift Date</strong> <br />
-              {schedule.date && schedule.time
-                ? formatDateTime(getCombinedDateTime(schedule.date, schedule.time))
-                : 'Invalid Date'}   
+              <span className="shift-icon">🕒</span>
+              <div>
+                <strong>Shift Date</strong> <br />
+                {schedule.date && schedule.time
+                  ? formatDateTime(getCombinedDateTime(schedule.date, schedule.time))
+                  : 'Invalid Date'}
+              </div>
             </div>
-          </div>
           ))}
         </div>
       </section>

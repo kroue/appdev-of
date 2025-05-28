@@ -77,7 +77,7 @@ const DashboardScreen = () => {
     }
 
     const now = new Date();
-    const timestamp = now.toISOString();
+    const localTime = now.toLocaleString();
 
     try {
       const response = await fetch('http://192.168.1.12:5000/api/logs', {
@@ -85,9 +85,9 @@ const DashboardScreen = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           userId: loggedInUser.id,
-          type: 'in',
-          time: timestamp,
-          scheduleId: selectedSchedule.id, // Include schedule ID
+          type: 'in', // or 'out'
+          time: localTime,
+          scheduleId: selectedSchedule?.id,
         }),
       });
 
@@ -106,13 +106,19 @@ const DashboardScreen = () => {
   };
 
   const handleClockOut = async () => {
-    if (!clockedIn || !clockInTime) {
-      Alert.alert('Not Clocked In', 'Please clock in before clocking out.');
+    if (!selectedSchedule) {
+      Alert.alert('Error', 'Please select a schedule before clocking out.');
       return;
     }
 
-    const clockOutTime = new Date();
-    const timestamp = clockOutTime.toISOString();
+    if (!clockedIn) {
+      Alert.alert('Not Clocked In', 'You must clock in before clocking out.');
+      return;
+    }
+
+    const now = new Date();
+    const pad = (n) => n.toString().padStart(2, '0');
+    const mysqlDateTime = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
 
     try {
       const response = await fetch('http://192.168.1.12:5000/api/logs', {
@@ -121,7 +127,8 @@ const DashboardScreen = () => {
         body: JSON.stringify({
           userId: loggedInUser.id,
           type: 'out',
-          time: timestamp,
+          time: mysqlDateTime,
+          scheduleId: selectedSchedule?.id,
         }),
       });
 
@@ -129,7 +136,7 @@ const DashboardScreen = () => {
         fetchLogs(); // Refresh logs
         setClockedIn(false);
         setClockInTime(null);
-        Alert.alert('Clocked Out', `You clocked out at ${clockOutTime.toLocaleTimeString()}`);
+        Alert.alert('Clocked Out', `You clocked out at ${now.toLocaleTimeString()}`);
       } else {
         Alert.alert('Error', 'Failed to clock out.');
       }
@@ -141,7 +148,13 @@ const DashboardScreen = () => {
 
   // Group logs by date
   const logsByDate = history.reduce((acc, log) => {
-    const date = new Date(log.time).toISOString().split('T')[0];
+    let date = 'Invalid Date';
+    const dateObj = new Date(log.time);
+    if (!isNaN(dateObj.getTime())) {
+      date = dateObj.toISOString().split('T')[0];
+    } else if (typeof log.time === 'string' && log.time.length >= 10) {
+      date = log.time.slice(0, 10); // fallback for invalid dates
+    }
     if (!acc[date]) acc[date] = [];
     acc[date].push(log);
     return acc;
@@ -307,11 +320,13 @@ const DashboardScreen = () => {
                 activeOpacity={0.8}
               >
                 <Text style={styles.logDateButtonText}>
-                  {new Date(date).toLocaleDateString('en-US', {
-                    month: 'long',
-                    day: 'numeric',
-                    year: 'numeric',
-                  })}
+                  {isNaN(new Date(date).getTime())
+                    ? date // fallback: show the raw date string
+                    : new Date(date).toLocaleDateString('en-US', {
+                        month: 'long',
+                        day: 'numeric',
+                        year: 'numeric',
+                      })}
                 </Text>
                 <Text style={styles.logDateButtonArrow}>
                   {expandedDates[date] ? '▲' : '▼'}
@@ -322,14 +337,17 @@ const DashboardScreen = () => {
                   <Text style={styles.salesDataText}>
                     Sales Data: ₱{getSalesDataForDate(date)}
                   </Text>
-                  {logsByDate[date].map((log, idx) => (
-                    <View key={idx} style={styles.historyCard}>
-                      <Text style={styles.historyText}>
-                        {log.type === 'in' ? 'Clocked In' : 'Clocked Out'} at{' '}
-                        {new Date(log.time).toLocaleTimeString()}
-                      </Text>
-                    </View>
-                  ))}
+                  {logsByDate[date].map((log, idx) => {
+                    const timeObj = new Date(log.time);
+                    return (
+                      <View key={idx} style={styles.historyCard}>
+                        <Text style={styles.historyText}>
+                          {log.type === 'in' ? 'Clocked In' : 'Clocked Out'} at{' '}
+                          {isNaN(timeObj.getTime()) ? log.time : timeObj.toLocaleTimeString()}
+                        </Text>
+                      </View>
+                    );
+                  })}
                 </View>
               )}
             </View>
